@@ -36,7 +36,7 @@ const NewChatModal = ({ backToSearch, isPhoneNumber, searchValue, searchUser, ch
         }
         axios.post(`http://localhost:8000/api/connection/createGroup`, payload).then((res) => {
             console.log(res)
-            socket.emit('join-group', { adminUser: res.data.group.adminUserId, userIds: res.data.group.memberUserIds, groupId: res.data.group._id.toString() })
+            socket.emit('create-group', { adminUser: res.data.group.adminUserId, userIds: res.data.group.memberUserIds, groupId: res.data.group._id.toString() })
             const currentTime = new Date();
             const hours = currentTime.getHours();
             const minutes = currentTime.getMinutes();
@@ -50,7 +50,8 @@ const NewChatModal = ({ backToSearch, isPhoneNumber, searchValue, searchUser, ch
                     description: res.data.group.description,
                     userName: res.data.group.name,
                     adminUserId: res.data.group.adminUserId,
-                    userIds: res.data.group.memberUserIds
+                    userIds: res.data.group.memberUserIds,
+                    createdAt: res.data.group.createdAt
                 },
                 time: formattedTime
             }
@@ -112,7 +113,7 @@ const NewChatModal = ({ backToSearch, isPhoneNumber, searchValue, searchUser, ch
                             All Contacts
                         </div>
                         <div className="all-contacts">
-                            {sideBarList.map((user, index) => (
+                            {sideBarList.length > 0 && sideBarList.map((user, index) => (
                                 <div key={user._id} className=" new-chat px-2" data-bs-dismiss="modal" aria-label="Close">
                                     <div onClick={() => changeChat(index)} key={index} className='user-chat d-flex flex-row justify-content-between '>
                                         <div className='d-flex flex-row justify-content-left'>

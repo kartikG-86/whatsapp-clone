@@ -49,16 +49,16 @@ import GroupChat from './components/GroupChat';
 function App() {
   return (
     <AppProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route element={<PrivateRoute />}>
-            <Route path="/" element={<WhatsApp />} />
-          </Route>
-          <Route path="/signUp" element={<Signup />} />
-          <Route path="/reset" element={<Reset />} />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/" element={<WhatsApp />} />
           <Route path="/chat/:id" element={<ChatSection />} />
           <Route path="/group/chat/:id" element={<GroupChat />} />
-        </Routes>
+        </Route>
+        <Route path="/signUp" element={<Signup />} />
+        <Route path="/reset" element={<Reset />} />
+      </Routes>
     </AppProvider>
   );
 }

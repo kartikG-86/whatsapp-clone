@@ -14,6 +14,8 @@ const GroupChatDisplay = () => {
     const [changeIcon, setChangeIcon] = useState(false);
     const [newTypedMessage, setNewTypedMessage] = useState('');
     const chatEndRef = useRef(null);
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+
 
     const newMessage = (e) => {
         setNewTypedMessage(e.target.value);
@@ -28,6 +30,7 @@ const GroupChatDisplay = () => {
 
     useEffect(() => {
         if (id) {
+            setMessage([])
             axios.get(`http://localhost:8000/api/connection/getMemberList/${id}`).then((res) => {
                 console.log(res.data.members)
                 setGroupMembers(res.data.members)
@@ -37,6 +40,7 @@ const GroupChatDisplay = () => {
             })
         }
     }, [id])
+    
     const sendMessage = () => {
         const currentTime = new Date();
         const hours = currentTime.getHours();
@@ -44,27 +48,26 @@ const GroupChatDisplay = () => {
         const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
         const formattedTime = `${hours}:${formattedMinutes}`;
         const msg = {
-            fromUserId: localStorage.getItem('userId'),
+            groupId: groupMembers._id,
             message: newTypedMessage,
-            toUserId: chatUser._id,
-            time: formattedTime
+            time: formattedTime,
+            senderId: localStorage.getItem('userId'),
+            senderDetails:currentUser
         };
-        socket.emit('message', msg);
-        setMessage((prevMessages) => [...prevMessages, msg]); // Update local message state for sender
-        const userExists = sideBarList.some((item) => item._id === chatUser._id);
-        setSideBarList((prevList) => {
-            const userExists = prevList.some(item => item._id === chatUser._id);
-
-            if (userExists) {
-                return prevList.map(item =>
-                    item._id === chatUser._id ? { ...item, time: formattedTime } : item
-                );
-            }
-        });
-        console.log(userExists, chatUser)
-        if (!userExists) {
-            setSideBarList((prevList) => [...prevList, chatUser]);
-        }
+        socket.emit('group-message-receive', msg);
+        // setMessage((prevMessages) => [...prevMessages, msg]); // Update local message state for sender
+        // const userExists = sideBarList.some((item) => item._id === chatUser._id);
+        // setSideBarList((prevList) => {
+        //     const userExists = prevList.some(item => item._id === chatUser._id);
+        //     if (userExists) {
+        //         return prevList.map(item =>
+        //             item._id === chatUser._id ? { ...item, time: formattedTime } : item
+        //         );
+        //     }
+        // });
+        // if (!userExists) {
+        //     setSideBarList((prevList) => [...prevList, chatUser]);
+        // }
         setNewTypedMessage('');
     };
 
@@ -74,18 +77,36 @@ const GroupChatDisplay = () => {
 
     return (
         <>
+
             <div className="col user-info p-3" data-bs-toggle="modal" data-bs-target="#displayMemberModal">
-                <img src={groupChat.user.imgUrl} data-bs-toggle="modal" data-bs-target="#showDp" />
-                <span className="px-3" style={{ fontWeight: '500' }}>{groupChat.user.userName}</span>
+                <img src={groupMembers.imgUrl != '' ? groupMembers.imgUrl : 'https://png.pngtree.com/element_our/png/20180904/group-avatar-icon-design-vector-png_75950.jpg'} data-bs-toggle="modal" data-bs-target="#showDp" />
+                <span className="px-3" style={{ fontWeight: '500' }}>{groupMembers.userName}</span>
             </div>
 
             <div className="col user-chat-area">
                 <div className="chat-display-area ">
 
+                    {message.length > 0 && message.map((msg) => (
+                        <div >
+                            {msg.senderId == localStorage.getItem('userId') ? <div className="text-end m-5">
+                                <div className="px-3 right-message">
+                                    <div className="text-start mt-2" style={{ fontWeight: '400', color: 'pink' }}>{currentUser.userName}</div>
+                                    <div className="text-start" style={{ lineHeight: '1.6rem' }}>{msg.message}</div>
+                                    <div className="text-end pb-1" style={{ color: 'grey', fontWeight: '500', fontSize: '0.75rem' }}>{msg.time}</div>
+                                </div>
+                            </div> : <div className="text-start m-3">
+                                <div className="px-3 left-message">
+                                    <div className="text-start mt-1" style={{ fontWeight: '400', color: 'pink' }}>{msg.senderDetails.userName}</div>
+                                    <div style={{ lineHeight: '1.6rem' }}>{msg.message}</div>
+                                    <div className="text-end pb-1" style={{ color: 'grey', fontWeight: '500', fontSize: '0.75rem' }}>{msg.time}</div>
+                                </div>
+                            </div>}
 
+
+
+                        </div>
+                    ))}
                     <div ref={chatEndRef} />
-
-
                 </div>
                 <div className='d-flex flex-column justify-content-end align-items-center' >
                     <div className="input-group search chat-search p-1 col" >
@@ -102,11 +123,12 @@ const GroupChatDisplay = () => {
             </div>
 
             <div className="modal fade" id="showDp" tabIndex="-1" aria-labelledby="displayImageModalLabel" aria-hidden="true">
-                <DisplayImageModal user={groupChat.user} comp='chat display' />
+                <DisplayImageModal user={groupMembers} comp='chat display' />
             </div>
             <div className="modal fade" id="displayMemberModal" tabIndex="-1" aria-labelledby="displayMemberModalLabel" aria-hidden="true">
-                <DisplayMemberModal groupMembers={groupMembers} />
+                <DisplayMemberModal groupMembers={groupMembers} setGroupMembers={setGroupMembers} setSideBarList={setSideBarList} />
             </div>
+
         </>
     );
 }

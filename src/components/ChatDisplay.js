@@ -17,8 +17,11 @@ const ChatDisplay = () => {
     const newUser = JSON.parse(localStorage.getItem('user'));
     const [changeIcon, setChangeIcon] = useState(false);
     const [newTypedMessage, setNewTypedMessage] = useState('');
-    const chatEndRef = useRef(null);
+    const chatEndRef = React.createRef();
 
+    useEffect(() => {
+        socket.connect()
+    }, [])
 
     const newMessage = (e) => {
         setNewTypedMessage(e.target.value);
@@ -46,6 +49,10 @@ const ChatDisplay = () => {
         socket.emit('message', msg);
         setMessage((prevMessages) => [...prevMessages, msg]); // Update local message state for sender
         const userExists = sideBarList.some((item) => item._id === chatUser._id);
+        if (!userExists) {
+            console.log(sideBarList, chatUser)
+            setSideBarList((prevList) => [...prevList, { _id: chatUser._id, user: chatUser }]);
+        }
         setSideBarList((prevList) => {
             const userExists = prevList.some(item => item._id === chatUser._id);
 
@@ -56,9 +63,7 @@ const ChatDisplay = () => {
             }
         });
         console.log(userExists, chatUser)
-        if (!userExists) {
-            setSideBarList((prevList) => [...prevList, chatUser]);
-        }
+
         setNewTypedMessage('');
     };
 
@@ -109,16 +114,14 @@ const ChatDisplay = () => {
                         </div>
                     ))}
                     <div ref={chatEndRef} />
-
-
                 </div>
                 <div className='d-flex flex-column justify-content-end align-items-center' >
-                    <div className="input-group search chat-search p-1 col" >
+                    <div className="input-group  chat-search p-1 col" >
                         <span className="input-group-text search-icon col-1" id="basic-addon1" >
                             <i className="bi bi-emoji-smile icon"></i>
                             <i className="bi bi-paperclip icon mx-3" style={{ transform: 'rotate(220deg)' }}></i>
                         </span>
-                        <input onKeyDown={handleKeyDown} onChange={newMessage} type="text" value={newTypedMessage} className="message-input col-10" placeholder="Type a message..." />
+                        <input onKeyDown={handleKeyDown} onChange={newMessage} type="text" value={newTypedMessage} className="col-10" placeholder="Type a message..." />
                         <div className="text-center col-1">
                             {!changeIcon ? <i className="bi bi-mic icon"></i> : <i onClick={sendMessage} className="bi bi-send icon send-icon"></i>}
                         </div>

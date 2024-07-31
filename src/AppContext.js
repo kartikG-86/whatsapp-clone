@@ -9,7 +9,7 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
     const [chatUser, setChatUser] = useState({});
-    const[groupChat,setGroupChat] = useState({})
+    const [groupChat, setGroupChat] = useState({})
     const [user, setUser] = useState();
     const [message, setMessage] = useState([]);
 
@@ -25,6 +25,19 @@ export const AppProvider = ({ children }) => {
     ]);
 
     const currentUserId = localStorage.getItem('userId');
+
+    // to connect to all joined groups
+    useEffect(() => {
+        console.log("your newww list", sideBarList)
+        if (sideBarList.length > 0) {
+            sideBarList.map((user) => {
+                if (user.user.adminUserId) {
+                    console.log(user.user)
+                    socket.emit('join-group', { adminUser: user.user.adminUserId, userIds: user.user.memberUserIds, groupId: user.user._id })
+                }
+            })
+        }
+    }, [sideBarList])
 
     useEffect(() => {
         if (!currentUserId) {
@@ -53,26 +66,18 @@ export const AppProvider = ({ children }) => {
 
         // Handle incoming messages
         const handleMessage = (msg) => {
+            console.log("neeeeee mess", msg)
             if (msg.toUserId === currentUserId) {
                 setMessage(prevMessages => [...prevMessages, msg]);
-
-                // update time 
-                setSideBarList((prevList) => {
-                    const userExists = prevList.some(item => item._id === msg.fromUserId);
-
-                    if (userExists) {
-                        return prevList.map(item =>
-                            item._id === msg.fromUserId ? { ...item, time: msg.time } : item
-                        );
-                    }
-                });
 
                 axios.get(`http://localhost:8000/api/connection/getUser/${msg.fromUserId}`)
                     .then((res) => {
                         const user = res.data.user;
+                        console.log('your new user message', sideBarList, { _id: user._id, user: user })
                         setSideBarList(prevList => {
+                            console.log(!prevList.some(item => item._id === user._id))
                             if (!prevList.some(item => item._id === user._id)) {
-                                return [...prevList, user];
+                                return [...prevList, { _id: user._id, user: user }];
                             }
                             return prevList;
                         });
@@ -80,17 +85,48 @@ export const AppProvider = ({ children }) => {
                     .catch(err => {
                         console.error('Error fetching user:', err);
                     });
+
+
+                // update time 
+                setSideBarList((prevList) => {
+                    const userExists = prevList.some(item => item._id === msg.fromUserId);
+                    if (userExists) {
+                        return prevList.map(item =>
+                            item._id === msg.fromUserId ? { ...item, time: msg.time } : item
+                        );
+                    }
+                    return prevList;
+                });
+
+
             }
         };
 
         const handleGroupMessage = (msg) => {
             console.log("Your group message", msg)
-            setMessage([])
-            setMessage([msg.message])
+            setMessage((prevMessages) => [...prevMessages, msg])
+        }
+        const handleJoinGroup = (msg) => {
+            console.log("Group Join notification", msg)
+            socket.emit('join-group', msg)
+            setTimeout(()=>{
+                socket.emit('get-updated-list', { id: currentUserId })
+            },2000)
+        }
+
+        const handleUpdatedList = (res) => {
+            setSideBarList((prevList) => {
+                const newUsers = res.userList.filter(user =>
+                    !prevList.some(item => item._id === user._id)
+                );
+                return [...prevList, ...newUsers];
+            });
         }
 
         socket.on('receive-message', handleMessage);
         socket.on('group-message', handleGroupMessage)
+        socket.on('join-group-message', handleJoinGroup)
+        socket.on('your-updated-list', handleUpdatedList)
 
         return () => {
             socket.off('receive-message', handleMessage);
@@ -100,7 +136,7 @@ export const AppProvider = ({ children }) => {
     }, [currentUserId]); // Adding currentUserId to the dependency array to handle changes
 
     return (
-        <AppContext.Provider value={{ socket, sideBarList, setSideBarList, chatUser, setChatUser, user, setUser, message, setMessage , groupChat, setGroupChat }}>
+        <AppContext.Provider value={{ socket, sideBarList, setSideBarList, chatUser, setChatUser, user, setUser, message, setMessage, groupChat, setGroupChat }}>
             {children}
         </AppContext.Provider>
     );

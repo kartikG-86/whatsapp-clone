@@ -148,10 +148,7 @@ const ChatSection = () => {
                     <div className='row chat-box'>
                         <ChatSidebar />
                         <div className='col-xl-9 col-lg-8 col-md-7 d-block d-xs-none chat-box'>
-
                             <ChatDisplay />
-
-
                         </div>
                     </div>
                 </div>

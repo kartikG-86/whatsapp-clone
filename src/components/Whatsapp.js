@@ -39,8 +39,6 @@ const WhatsApp = () => {
             axios.get(`http://localhost:8000/api/connection/getUser/${id}`)
                 .then((res) => {
                     setChatUser(res.data.user);
-
-                    
                 })
                 .catch((err) => {
                     console.error(err);
