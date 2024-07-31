@@ -14,7 +14,8 @@ const GroupChatDisplay = () => {
     const [newTypedMessage, setNewTypedMessage] = useState('');
     const chatEndRef = useRef(null);
     const currentUser = JSON.parse(localStorage.getItem('user'));
-
+    
+  
 
     const newMessage = (e) => {
         setNewTypedMessage(e.target.value);
@@ -29,7 +30,7 @@ const GroupChatDisplay = () => {
 
     useEffect(() => {
         if (id) {
-            setMessage([])
+            socket.emit('join-group',{groupId:id})
             axios.get(`http://localhost:8000/api/connection/getMemberList/${id}`).then((res) => {
                 console.log(res.data.members)
                 setGroupMembers(res.data.members)
