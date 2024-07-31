@@ -87,15 +87,14 @@ color: white;
 }
 
 .search{
-  margin: 0 1rem;
-  
+  margin: 0 0.5rem;
+  border-radius: 0.2rem;
 
 }
 
 .search input{
   border: none;
   background-color: #3c4042;
-  width: 83%;
   border-top-right-radius: 0.3rem;
   border-bottom-right-radius: 0.3rem;
 }
@@ -112,7 +111,7 @@ color: white;
 }
 
 .search-icon i{
-  font-size: 1rem;
+  font-size: 1.32rem;
 }
 
 .user-chat{
@@ -147,13 +146,34 @@ img{
 }
 
 .user-chat-area{
-  
   border-bottom: 0.8px solid black;
   margin-left: -0.7rem;
-
   background-image: url('/public/whatsappBackground1.jpg');
   background-position: center;
   height: 90.5%;
+}
+
+.chat-display-area{
+  overflow-y: scroll;
+  height: 94%;
+  background: 1px solid transparent;
+}
+
+.chat-display-area::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px grey;
+	background-color: white;
+}
+
+.chat-display-area::-webkit-scrollbar
+{
+	width: 6px;
+	background-color: white;
+}
+
+.chat-display-area::-webkit-scrollbar-thumb
+{
+	background-color: grey;
 }
 
 .chat-search{
@@ -171,6 +191,191 @@ img{
 .chat-search input:focus{
   background-color: #29292a;
 }
+
+.send-icon{
+  transform:rotate(45deg) ;
+}
+
+.left-message{
+background-color:#364147;
+max-width: 35rem;
+min-width: 15rem;
+display: inline-block;
+}
+
+.right-message{
+background-color:#054640;
+display: inline-block;
+max-width: 35rem;
+min-width: 15rem;
+
+}
+
+.modal-content{
+  background-color: #29292a;
+
+}
+
+.modal-header{
+  border: none;
+}
+
+.modal-footer{
+  border: none;
+}
+
+.new-grp-icon{
+ border: 1px solid rgba(255, 255, 255, 0.445);
+ border-radius: 50%;
+ height: 1rem;
+  width: 1rem ;
+padding:0.7rem
+}
+
+.new-chat{
+  height: fit-content;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.new-chat:hover{
+  background-color: #3c4042
+}
+
+.all-contacts{
+  height: 20rem;
+  overflow-y: scroll;
+}
+
+.all-contacts::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px grey;
+	background-color: white;
+}
+
+.all-contacts::-webkit-scrollbar
+{
+	width: 6px;
+	background-color: white;
+}
+
+.all-contacts::-webkit-scrollbar-thumb
+{
+	background-color: grey;
+}
+
+.keypad{
+  font-size: 2rem;
+  height: 5rem;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.keypad:hover{
+  background-color: #3c4042;
+  border:0.5px solid rgba(255, 255, 255, 0.315);
+  border-radius: 0.6rem;
+}
+
+.create-grp-btn{
+  background-color: black;
+  color:white;
+
+}
+
+.show-dp{
+  background-color: rgba(49, 48, 48, 0.781);
+  color:white;
+  font-weight: 500;
+  font-size: 1.2rem;
+}
+
+.dp-image{
+  height: 20rem;
+  width: 20rem;
+  border-radius: 0;
+}
+
+.dp-icon{
+  background-color: black;
+}
+
+.dp-icon i{
+  color:#037468
+}
+
+.auth-container {
+
+
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  height: 100vh;
+  overflow: hidden;
+  background-color: black;
+  color:white
+}
+
+.auth-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.auth-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-container input {
+  margin-bottom: 10px;
+  padding: 10px;
+  width: 20rem;
+  margin: 1rem 0;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: black;
+  color:white;
+  outline: none;
+}
+
+.auth-container input:focus{
+  border: none;
+  border-bottom: 1px solid white;
+  outline: none;
+}
+
+.auth-container button {
+  margin-top: 1rem;
+  padding: 10px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.auth-container .links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.auth-container .links a {
+  margin: 0 5px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+.form-title{
+  color:rgb(139, 139, 139)
+}
+
+.welcome-background{
+  background-color: rgb(49, 49, 49);
+  color:#01ab9a;
+  border:1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.3rem;
+}
+
 
 @keyframes App-logo-spin {
   from {

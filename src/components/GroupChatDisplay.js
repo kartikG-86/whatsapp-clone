@@ -6,19 +6,14 @@ import '../App.css';
 import DisplayImageModal from "./DisplayImageModal";
 import axios from "axios";
 import { AppContext } from "../AppContext";
-const SOCKET_SERVER_URL = 'http://localhost:8000'; // Replace with your server URL
-const socket = io(SOCKET_SERVER_URL, { autoConnect: false });
-
-const ChatDisplay = () => {
-
-    const { chatUser, sideBarList, setSideBarList, message, setMessage, setChatUser, socket } = useContext(AppContext);
-
+import DisplayMemberModal from "./DisplayMemberModal";
+const GroupChatDisplay = () => {
+    const { chatUser, sideBarList, setSideBarList, message, setMessage, setChatUser, socket, groupChat, setGroupChat } = useContext(AppContext);
     const { id } = useParams();
-    const newUser = JSON.parse(localStorage.getItem('user'));
+    const [groupMembers, setGroupMembers] = useState([])
     const [changeIcon, setChangeIcon] = useState(false);
     const [newTypedMessage, setNewTypedMessage] = useState('');
     const chatEndRef = useRef(null);
-
 
     const newMessage = (e) => {
         setNewTypedMessage(e.target.value);
@@ -31,6 +26,17 @@ const ChatDisplay = () => {
         }
     };
 
+    useEffect(() => {
+        if (id) {
+            axios.get(`http://localhost:8000/api/connection/getMemberList/${id}`).then((res) => {
+                console.log(res.data.members)
+                setGroupMembers(res.data.members)
+            }).catch(err => {
+                console.log(err)
+
+            })
+        }
+    }, [id])
     const sendMessage = () => {
         const currentTime = new Date();
         const hours = currentTime.getHours();
@@ -68,46 +74,15 @@ const ChatDisplay = () => {
 
     return (
         <>
-            <div className="col user-info p-3">
-                <img src={chatUser.imgUrl} data-bs-toggle="modal" data-bs-target="#showDp" />
-                <span className="px-3" style={{ fontWeight: '500' }}>{chatUser.userName}</span>
+            <div className="col user-info p-3" data-bs-toggle="modal" data-bs-target="#displayMemberModal">
+                <img src={groupChat.user.imgUrl} data-bs-toggle="modal" data-bs-target="#showDp" />
+                <span className="px-3" style={{ fontWeight: '500' }}>{groupChat.user.userName}</span>
             </div>
 
             <div className="col user-chat-area">
                 <div className="chat-display-area ">
-                    {chatUser._id === '66a7162fc44e5597dafbe9f0' && (
-                        <div className="text-center py-5">
-                            <span className="welcome-background">This is an official Account of Whatsapp Clone Team</span>
-                            <div className="text-start m-3">
-                                <div className="px-3 left-message">
-                                    <div className="text-start mt-1" style={{ fontWeight: '400', color: 'pink' }}>{chatUser.userName}</div>
-                                    <div style={{ lineHeight: '1.6rem' }}>Welcome to our app, {newUser.userName}! We're glad to have you here.</div>
-                                    <div className="text-end pb-1" style={{ color: 'grey', fontWeight: '500', fontSize: '0.75rem' }}>17:15 PM</div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {message && message.map((msg, index) => (
-                        <div >
-                            {msg.fromUserId === localStorage.getItem('userId') ? (
-                                <div key={index} className="text-end m-5">
-                                    <div className="px-3 right-message">
-                                        <div className="text-start mt-2" style={{ fontWeight: '400', color: 'pink' }}>{newUser.userName}</div>
-                                        <div className="text-start" style={{ lineHeight: '1.6rem' }}>{msg.message}</div>
-                                        <div className="text-end pb-1" style={{ color: 'grey', fontWeight: '500', fontSize: '0.75rem' }}>{msg.time}</div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div key={index} className="text-start m-3">
-                                    <div className="px-3 left-message">
-                                        <div className="text-start mt-1" style={{ fontWeight: '400', color: 'pink' }}>{chatUser.userName}</div>
-                                        <div style={{ lineHeight: '1.6rem' }}>{msg.message}</div>
-                                        <div className="text-end pb-1" style={{ color: 'grey', fontWeight: '500', fontSize: '0.75rem' }}>{msg.time}</div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+
+
                     <div ref={chatEndRef} />
 
 
@@ -127,10 +102,13 @@ const ChatDisplay = () => {
             </div>
 
             <div className="modal fade" id="showDp" tabIndex="-1" aria-labelledby="displayImageModalLabel" aria-hidden="true">
-                <DisplayImageModal user={chatUser} comp='chat display' />
+                <DisplayImageModal user={groupChat.user} comp='chat display' />
+            </div>
+            <div className="modal fade" id="displayMemberModal" tabIndex="-1" aria-labelledby="displayMemberModalLabel" aria-hidden="true">
+                <DisplayMemberModal groupMembers={groupMembers} />
             </div>
         </>
     );
 }
 
-export default ChatDisplay;
+export default GroupChatDisplay
