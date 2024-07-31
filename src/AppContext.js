@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
     const [groupChat, setGroupChat] = useState({})
     const [user, setUser] = useState();
     const [message, setMessage] = useState([]);
+    const [groupMembers, setGroupMembers] = useState({})
 
     const [sideBarList, setSideBarList] = useState([
         {
@@ -136,7 +137,7 @@ export const AppProvider = ({ children }) => {
     }, [currentUserId]); // Adding currentUserId to the dependency array to handle changes
 
     return (
-        <AppContext.Provider value={{ socket, sideBarList, setSideBarList, chatUser, setChatUser, user, setUser, message, setMessage, groupChat, setGroupChat }}>
+        <AppContext.Provider value={{ socket, sideBarList, setSideBarList, chatUser, setChatUser, user, setUser, message, setMessage, groupChat, setGroupChat , groupMembers, setGroupMembers }}>
             {children}
         </AppContext.Provider>
     );

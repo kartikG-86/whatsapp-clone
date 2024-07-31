@@ -7,7 +7,7 @@ import axios from "axios";
 import { AppContext } from '../AppContext';
 
 const ChatSidebar = () => {
-    const { setUser, sideBarList, setSideBarList, groupChat, setGroupChat } = useContext(AppContext);
+    const { setUser, sideBarList, setSideBarList, groupChat, setGroupChat, groupMembers, setGroupMembers, setMessage } = useContext(AppContext);
     const { id } = useParams()
     const navigate = useNavigate()
     const currentTime = new Date();
@@ -35,8 +35,10 @@ const ChatSidebar = () => {
 
     }
     const changeChat = (user) => {
+        console.log('navigate', user)
+
         if (user.user.adminUserId) {
-            setGroupChat(user)
+            setMessage([])
             navigate(`/group/chat/${user._id}`)
         }
         else {
