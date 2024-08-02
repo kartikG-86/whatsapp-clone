@@ -6,6 +6,8 @@ import '../App.css';
 import DisplayImageModal from "./DisplayImageModal";
 import axios from "axios";
 import { AppContext } from "../AppContext";
+import EmojiModal from "./EmojiModal";
+import EmojiPicker from "emoji-picker-react";
 const SOCKET_SERVER_URL = 'http://localhost:8000'; // Replace with your server URL
 const socket = io(SOCKET_SERVER_URL, { autoConnect: false });
 
@@ -18,10 +20,32 @@ const ChatDisplay = () => {
     const [changeIcon, setChangeIcon] = useState(false);
     const [newTypedMessage, setNewTypedMessage] = useState('');
     const chatEndRef = React.createRef();
+    const emojiRef = useRef(null);
 
+    const [isShowEmoji, setIsShowEmoji] = useState(false)
+    const showEmojiPallete = () => {
+        setIsShowEmoji(!isShowEmoji)
+    }
     useEffect(() => {
         socket.connect()
     }, [])
+
+    const handleClickOutside = (event) => {
+        // Check if the click is outside of the emoji palette and the button
+        if (emojiRef.current && !emojiRef.current.contains(event.target)) {
+            setIsShowEmoji(false);
+        }
+    };
+
+    useEffect(() => {
+        // Add event listener to document when component mounts
+        document.addEventListener('mousedown', handleClickOutside);
+        
+        // Clean up event listener when component unmounts
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const newMessage = (e) => {
         setNewTypedMessage(e.target.value);
@@ -71,6 +95,7 @@ const ChatDisplay = () => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [message]);
 
+
     return (
         <>
             <div className="col user-info p-3">
@@ -117,9 +142,16 @@ const ChatDisplay = () => {
                 </div>
                 <div className='d-flex flex-column justify-content-end align-items-center' >
                     <div className="input-group  chat-search p-1 col" >
-                        <span className="input-group-text search-icon col-1" id="basic-addon1" >
-                            <i className="bi bi-emoji-smile icon"></i>
-                            <i className="bi bi-paperclip icon mx-3" style={{ transform: 'rotate(220deg)' }}></i>
+                        <span className="input-group-text dropup search-icon col-1" id="basic-addon1" >
+                            <i className="bi bi-emoji-smile icon" onClick={showEmojiPallete}></i>
+                            <div ref={emojiRef} style={{ position: 'absolute', bottom: '3rem', left: '-0.25rem' }} className={`${isShowEmoji ? 'd-block' : 'd-none'}`} >
+                                <EmojiPicker skinTonesDisabled="true" theme="dark" open="true" onEmojiClick={(data) => {
+                                    setNewTypedMessage((prevMessage) => {
+                                      return prevMessage + data.emoji
+                                    })
+                                }} />
+                            </div>
+                            <i class="bi bi-paperclip icon mx-3" style={{ transform: 'rotate(220deg)' }}></i>
                         </span>
                         <input onKeyDown={handleKeyDown} onChange={newMessage} type="text" value={newTypedMessage} className="col-10" placeholder="Type a message..." />
                         <div className="text-center col-1">
@@ -131,6 +163,9 @@ const ChatDisplay = () => {
 
             <div className="modal fade" id="showDp" tabIndex="-1" aria-labelledby="displayImageModalLabel" aria-hidden="true">
                 <DisplayImageModal user={chatUser} comp='chat display' />
+            </div>
+            <div className="modal fade" id="showEmoji" tabIndex="-1" aria-labelledby="showEmojiModalLabel" aria-hidden="true">
+                <EmojiModal />
             </div>
         </>
     );

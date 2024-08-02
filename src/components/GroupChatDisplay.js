@@ -8,14 +8,12 @@ import axios from "axios";
 import { AppContext } from "../AppContext";
 import DisplayMemberModal from "./DisplayMemberModal";
 const GroupChatDisplay = () => {
-    const { chatUser, sideBarList, setSideBarList, message, setMessage, setChatUser, socket, groupChat, setGroupChat, groupMembers , setGroupMembers } = useContext(AppContext);
+    const { chatUser, sideBarList, setSideBarList, groupMessage, setGroupMessage, setChatUser, socket, groupChat, setGroupChat, groupMembers, setGroupMembers, io } = useContext(AppContext);
     const { id } = useParams();
     const [changeIcon, setChangeIcon] = useState(false);
     const [newTypedMessage, setNewTypedMessage] = useState('');
     const chatEndRef = useRef(null);
     const currentUser = JSON.parse(localStorage.getItem('user'));
-    
-  
 
     const newMessage = (e) => {
         setNewTypedMessage(e.target.value);
@@ -29,17 +27,27 @@ const GroupChatDisplay = () => {
     };
 
     useEffect(() => {
+        socket.emit('user-joined', { userId: currentUser._id });
+        
+    }, [])
+
+    useEffect(() => {
         if (id) {
-            socket.emit('join-group',{groupId:id})
+            console.log('now we connect',id)
+            socket.emit('join-group', { groupId: id , userName:currentUser.userName })
+            
             axios.get(`http://localhost:8000/api/connection/getMemberList/${id}`).then((res) => {
                 console.log(res.data.members)
                 setGroupMembers(res.data.members)
+
             }).catch(err => {
                 console.log(err)
 
             })
         }
-    }, [id])
+    }, [id, socket])
+
+
 
     const sendMessage = () => {
         const currentTime = new Date();
@@ -48,7 +56,7 @@ const GroupChatDisplay = () => {
         const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
         const formattedTime = `${hours}:${formattedMinutes}`;
         const msg = {
-            groupId: groupMembers._id,
+            groupId: id,
             message: newTypedMessage,
             time: formattedTime,
             senderId: localStorage.getItem('userId'),
@@ -60,7 +68,7 @@ const GroupChatDisplay = () => {
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [message]);
+    }, [groupMessage]);
 
     return (
         <>
@@ -74,11 +82,12 @@ const GroupChatDisplay = () => {
                 <div className="col user-chat-area">
                     <div className="chat-display-area ">
 
-                        {message.length > 0 && message.map((msg) => (
+                        {groupMessage.length > 0 && groupMessage.map((msg) => (
+
                             <div >
                                 {msg.senderId == localStorage.getItem('userId') ? <div className="text-end m-5">
                                     <div className="px-3 right-message">
-                                        <div className="text-start mt-2" style={{ fontWeight: '400', color: 'pink' }}>{currentUser.userName}</div>
+                                        <div className="text-start mt-2" style={{ fontWeight: '400', color: 'pink' }}>{currentUser.userName ? currentUser.userName : ''}</div>
                                         <div className="text-start" style={{ lineHeight: '1.6rem' }}>{msg.message}</div>
                                         <div className="text-end pb-1" style={{ color: 'grey', fontWeight: '500', fontSize: '0.75rem' }}>{msg.time}</div>
                                     </div>
@@ -89,10 +98,9 @@ const GroupChatDisplay = () => {
                                         <div className="text-end pb-1" style={{ color: 'grey', fontWeight: '500', fontSize: '0.75rem' }}>{msg.time}</div>
                                     </div>
                                 </div>}
-
-
-
                             </div>
+
+
                         ))}
                         <div ref={chatEndRef} />
                     </div>

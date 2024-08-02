@@ -7,7 +7,7 @@ import axios from "axios";
 import { AppContext } from '../AppContext';
 
 const ChatSidebar = () => {
-    const { setUser, sideBarList, setSideBarList, groupChat, setGroupChat, groupMembers, setGroupMembers, setMessage } = useContext(AppContext);
+    const { setUser, sideBarList, setSideBarList, groupChat, setGroupChat, groupMembers, setGroupMembers, setMessage,setGroupMessage, socket } = useContext(AppContext);
     const { id } = useParams()
     const navigate = useNavigate()
     const currentTime = new Date();
@@ -38,7 +38,8 @@ const ChatSidebar = () => {
         console.log('navigate', user)
 
         if (user.user.adminUserId) {
-            setMessage([])
+            setGroupMessage([])
+            // socket.emit('join-group',{groupId: user._id})
             navigate(`/group/chat/${user._id}`)
         }
         else {

@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
     const [groupChat, setGroupChat] = useState({})
     const [user, setUser] = useState();
     const [message, setMessage] = useState([]);
+    const [groupMessage, setGroupMessage] = useState([])
     const [groupMembers, setGroupMembers] = useState({})
 
     const [sideBarList, setSideBarList] = useState([
@@ -24,6 +25,7 @@ export const AppProvider = ({ children }) => {
 
         }
     ]);
+
 
     const currentUserId = localStorage.getItem('userId');
 
@@ -45,9 +47,7 @@ export const AppProvider = ({ children }) => {
             console.error('No user ID found in local storage.');
             return;
         }
-
-        // Connect to socket and emit user joined
-        socket.connect();
+        socket.connect()
         socket.emit('user-joined', { userId: currentUserId });
 
         // Fetch user list
@@ -105,14 +105,15 @@ export const AppProvider = ({ children }) => {
 
         const handleGroupMessage = (msg) => {
             console.log("Your group message", msg)
-            setMessage((prevMessages) => [...prevMessages, msg])
+            setGroupMessage((prevMessages) => [...prevMessages, msg])
+            console.log(groupMessage)
         }
         const handleJoinGroup = (msg) => {
             console.log("Group Join notification", msg)
             socket.emit('join-group', msg)
-            setTimeout(()=>{
+            setTimeout(() => {
                 socket.emit('get-updated-list', { id: currentUserId })
-            },2000)
+            }, 2000)
         }
 
         const handleUpdatedList = (res) => {
@@ -132,12 +133,12 @@ export const AppProvider = ({ children }) => {
         return () => {
             socket.off('receive-message', handleMessage);
             socket.off('group-message', handleGroupMessage);
-            socket.disconnect();
+            socket.disconnect()
         };
     }, [currentUserId]); // Adding currentUserId to the dependency array to handle changes
 
     return (
-        <AppContext.Provider value={{ socket, sideBarList, setSideBarList, chatUser, setChatUser, user, setUser, message, setMessage, groupChat, setGroupChat , groupMembers, setGroupMembers }}>
+        <AppContext.Provider value={{ socket, sideBarList, setSideBarList, chatUser, setChatUser, user, setUser, message, setMessage, groupChat, setGroupChat, groupMembers, setGroupMembers, groupMessage, setGroupMessage, io }}>
             {children}
         </AppContext.Provider>
     );
