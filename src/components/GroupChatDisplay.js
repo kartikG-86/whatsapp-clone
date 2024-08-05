@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
-
+import EmojiPicker from "emoji-picker-react";
 import io from 'socket.io-client';
 import '../App.css';
 import DisplayImageModal from "./DisplayImageModal";
@@ -8,13 +8,35 @@ import axios from "axios";
 import { AppContext } from "../AppContext";
 import DisplayMemberModal from "./DisplayMemberModal";
 const GroupChatDisplay = () => {
-    const { chatUser, sideBarList, setSideBarList, groupMessage, setGroupMessage, setChatUser, socket, groupChat, setGroupChat, groupMembers, setGroupMembers, io } = useContext(AppContext);
+    const {  setSideBarList, groupMessage, socket, groupMembers, setGroupMembers} = useContext(AppContext);
     const { id } = useParams();
     const [changeIcon, setChangeIcon] = useState(false);
     const [newTypedMessage, setNewTypedMessage] = useState('');
     const chatEndRef = useRef(null);
     const currentUser = JSON.parse(localStorage.getItem('user'));
+    const emojiRef = useRef(null);
 
+    const [isShowEmoji, setIsShowEmoji] = useState(false)
+    const showEmojiPallete = () => {
+        setIsShowEmoji(!isShowEmoji)
+    }
+    useEffect(() => {
+        socket.connect()
+    }, [])
+
+    const handleClickOutside = (event) => {
+        if (emojiRef.current && !emojiRef.current.contains(event.target)) {
+            setIsShowEmoji(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
     const newMessage = (e) => {
         setNewTypedMessage(e.target.value);
         setChangeIcon(e.target.value !== '');
@@ -28,14 +50,14 @@ const GroupChatDisplay = () => {
 
     useEffect(() => {
         socket.emit('user-joined', { userId: currentUser._id });
-        
+
     }, [])
 
     useEffect(() => {
         if (id) {
-            console.log('now we connect',id)
-            socket.emit('join-group', { groupId: id , userName:currentUser.userName })
-            
+            console.log('now we connect', id)
+            socket.emit('join-group', { groupId: id, userName: currentUser.userName })
+
             axios.get(`http://localhost:8000/api/connection/getMemberList/${id}`).then((res) => {
                 console.log(res.data.members)
                 setGroupMembers(res.data.members)
@@ -106,9 +128,17 @@ const GroupChatDisplay = () => {
                     </div>
                     <div className='d-flex flex-column justify-content-end align-items-center' >
                         <div className="input-group search chat-search p-1 col" >
-                            <span className="input-group-text search-icon col-1" id="basic-addon1" >
-                                <i className="bi bi-emoji-smile icon"></i>
-                                <i className="bi bi-paperclip icon mx-3" style={{ transform: 'rotate(220deg)' }}></i>
+                            <span className="input-group-text dropup search-icon col-1" id="basic-addon1" >
+                                <i className="bi bi-emoji-smile icon" onClick={showEmojiPallete}></i>
+                                <div ref={emojiRef} style={{ position: 'absolute', bottom: '3rem', left: '-0.25rem' }} className={`${isShowEmoji ? 'd-block' : 'd-none'}`} >
+                                    <EmojiPicker skinTonesDisabled="true" theme="dark" open="true" onEmojiClick={(data) => {
+
+                                        setNewTypedMessage((prevMessage) => {
+                                            return prevMessage + data.emoji
+                                        })
+                                    }} />
+                                </div>
+                                <i class="bi bi-paperclip icon mx-3" style={{ transform: 'rotate(220deg)' }}></i>
                             </span>
                             <input onKeyDown={handleKeyDown} onChange={newMessage} type="text" value={newTypedMessage} className="message-input col-10" placeholder="Type a message..." />
                             <div className="text-center col-1">

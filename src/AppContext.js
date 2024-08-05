@@ -125,10 +125,22 @@ export const AppProvider = ({ children }) => {
             });
         }
 
+        const handleDeleteMessage = (msg) => {
+            console.log(msg)
+            setMessage(prevMessages =>
+                prevMessages.map(prevMsg =>
+                    prevMsg.msgId === msg.msgId
+                        ? { ...prevMsg, deleteType: msg.deleteType }
+                        : prevMsg
+                )
+            );
+        }
+
         socket.on('receive-message', handleMessage);
         socket.on('group-message', handleGroupMessage)
         socket.on('join-group-message', handleJoinGroup)
         socket.on('your-updated-list', handleUpdatedList)
+        socket.on('message-delete',handleDeleteMessage)
 
         return () => {
             socket.off('receive-message', handleMessage);
