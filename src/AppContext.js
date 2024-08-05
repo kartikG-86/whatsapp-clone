@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const SOCKET_SERVER_URL = 'http://localhost:8000';
 const socket = io(SOCKET_SERVER_URL, { autoConnect: false });
@@ -14,6 +15,7 @@ export const AppProvider = ({ children }) => {
     const [message, setMessage] = useState([]);
     const [groupMessage, setGroupMessage] = useState([])
     const [groupMembers, setGroupMembers] = useState({})
+    const { id } = useParams();
 
     const [sideBarList, setSideBarList] = useState([
         {
@@ -28,6 +30,8 @@ export const AppProvider = ({ children }) => {
 
 
     const currentUserId = localStorage.getItem('userId');
+
+
 
     // to connect to all joined groups
     useEffect(() => {
@@ -140,7 +144,7 @@ export const AppProvider = ({ children }) => {
         socket.on('group-message', handleGroupMessage)
         socket.on('join-group-message', handleJoinGroup)
         socket.on('your-updated-list', handleUpdatedList)
-        socket.on('message-delete',handleDeleteMessage)
+        socket.on('message-delete', handleDeleteMessage)
 
         return () => {
             socket.off('receive-message', handleMessage);
@@ -150,7 +154,7 @@ export const AppProvider = ({ children }) => {
     }, [currentUserId]); // Adding currentUserId to the dependency array to handle changes
 
     return (
-        <AppContext.Provider value={{ socket, sideBarList, setSideBarList, chatUser, setChatUser, user, setUser, message, setMessage, groupChat, setGroupChat, groupMembers, setGroupMembers, groupMessage, setGroupMessage, io }}>
+        <AppContext.Provider value={{ socket, sideBarList, setSideBarList, chatUser, setChatUser, user, setUser, message, setMessage, groupChat, setGroupChat, groupMembers, setGroupMembers, groupMessage, setGroupMessage, io, setGroupMessage }}>
             {children}
         </AppContext.Provider>
     );

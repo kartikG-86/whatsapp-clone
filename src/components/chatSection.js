@@ -95,6 +95,7 @@ const ChatSection = () => {
                 });
 
             axios.get(`http://localhost:8000/api/connection/prevMessages/${id}/${currentUserId}`).then((res) => {
+                console.log(res.data.previousMessages)
                 setMessage(res.data.previousMessages)
             })
         }

@@ -34,7 +34,6 @@ const DeleteModal = ({ deleteMsg }) => {
         setIsDelete(false);
         setSelectedOption('');
         socket.emit('delete-message', deleteMsg)
-
     };
 
     return (
