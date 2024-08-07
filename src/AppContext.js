@@ -216,8 +216,6 @@ export const AppProvider = ({ children }) => {
     const updateLocalMessage = (msg) => {
         const date = new Date();
         const todayDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-
-
         setMessage((prevMessageData) => {
             const messageCopy = [...prevMessageData];
             const dateIndex = messageCopy.findIndex((prevMessages) => prevMessages._id === todayDate);
@@ -230,6 +228,29 @@ export const AppProvider = ({ children }) => {
                     messageCopy[dateIndex].messages.push(msg);
                 }
 
+            } else {
+                messageCopy.push({
+                    _id: todayDate,
+                    messages: [msg]
+                });
+            }
+
+            return messageCopy;
+        });
+    };
+    const updateLocalGroupMessage = (msg) => {
+        const date = new Date();
+        const todayDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+
+        setGroupMessage((prevMessageData) => {
+            const messageCopy = [...prevMessageData];
+            const dateIndex = messageCopy.findIndex((prevMessages) => prevMessages._id === todayDate);
+            if (dateIndex !== -1) {
+                const length = messageCopy[dateIndex].messages.length
+                const lastMessage = messageCopy[dateIndex].messages[length - 1]
+                if (lastMessage.createdAt != msg.createdAt) {
+                    messageCopy[dateIndex].messages.push(msg);
+                }
             } else {
                 messageCopy.push({
                     _id: todayDate,
@@ -307,7 +328,7 @@ export const AppProvider = ({ children }) => {
 
         const handleGroupMessage = (msg) => {
             console.log("Group message", msg);
-            setGroupMessage((prevMessages) => [...prevMessages, msg]);
+            updateLocalGroupMessage(msg)
         };
 
         const handleJoinGroup = (msg) => {
@@ -344,7 +365,7 @@ export const AppProvider = ({ children }) => {
                     return prevMessages;
                 });
             });
-            
+
         };
 
         socket.on('receive-message', handleMessage);
