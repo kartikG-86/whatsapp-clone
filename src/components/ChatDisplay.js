@@ -24,7 +24,7 @@ const ChatDisplay = () => {
     const [isAttach, setIsAttach] = useState(false)
     const [deleteMsg, setDeleteMsg] = useState({})
     const [deleteId, setDeleteId] = useState('')
-    const chatEndRef = React.createRef();
+    const chatEndRef = useRef(null);
     const emojiRef = useRef(null);
     const attachFileRef = useRef(null)
 
@@ -44,6 +44,29 @@ const ChatDisplay = () => {
     useEffect(() => {
         socket.connect()
     }, [])
+
+
+    const updateLocalMessage = (msg) => {
+        const date = new Date();
+        const todayDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+
+        setMessage((prevMessageData) => {
+            const messageCopy = [...prevMessageData];
+            const dateIndex = messageCopy.findIndex((prevMessages) => prevMessages._id === todayDate);
+
+            if (dateIndex !== -1) {
+
+                messageCopy[dateIndex].messages.push(msg);
+            } else {
+                messageCopy.push({
+                    _id: todayDate,
+                    messages: [msg]
+                });
+            }
+
+            return messageCopy;
+        });
+    };
 
     const handleClickOutside = (event) => {
         if (emojiRef.current && !emojiRef.current.contains(event.target)) {
@@ -83,7 +106,8 @@ const ChatDisplay = () => {
             deleteType: null
         };
         socket.emit('message', msg);
-        setMessage((prevMessages) => [...prevMessages, msg]); // Update local message state for sender
+        updateLocalMessage(msg)
+
         const userExists = sideBarList.some((item) => item._id === chatUser._id);
         if (!userExists) {
             console.log(sideBarList, chatUser)
@@ -104,8 +128,12 @@ const ChatDisplay = () => {
     };
 
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView();
+        console.log('hello')
         console.log(message)
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            console.log(message)
+        }
     }, [message]);
 
     const attachFiles = () => {
@@ -131,6 +159,7 @@ const ChatDisplay = () => {
         }
     }
 
+
     return (
         <>
             <div className="col user-info p-3">
@@ -153,70 +182,70 @@ const ChatDisplay = () => {
                         </div>
                     )}
 
-{message.length > 0 && message.map((prevMsg, prevIndex) => (
-    <React.Fragment key={prevIndex}>
-        <div className="text-center my-5">
-            <span className="my-3 msg-date">{prevMsg._id}</span>
-        </div>
-        {prevMsg.messages.map((msg, index) => (
-            <div key={msg.msgId}>
-                {msg.fromUserId === localStorage.getItem('userId') ? (
-                    <div className="text-end m-5">
-                        <div className="px-3 right-message"
-                            onMouseOver={() => {
-                                if (!msg.deleteType) {
-                                    setDeleteMsg(msg);
-                                    setDeleteId(msg.msgId);
-                                }
-                            }}
-                            onMouseOut={() => setDeleteId('')}>
-                            <div className="d-flex flex-row justify-content-between mt-2" style={{ fontWeight: '400', color: 'pink' }}>
-                                <div style={{ color: 'pink' }}> {newUser.userName} </div>
-                                <div data-bs-toggle="modal" data-bs-target="#deleteMessage" className={`${deleteId === msg.msgId ? 'd-block' : 'd-none'}`}>
-                                    <i className="bi bi-trash3 delete-btn"></i>
-                                </div>
+                    {message && message.length > 0 && message.map((prevMsg, prevIndex) => (
+                        <div key={prevIndex}>
+                            <div className="text-center my-5">
+                                <span className="my-3 msg-date">{prevMsg._id}</span>
                             </div>
-                            {msg.message.includes('data:image') && !msg.deleteType ? (
-                                <img src={msg.message} alt="image" style={{ width: '20rem', height: '20rem' }} />
-                            ) : (
-                                <div className="text-start" style={{ lineHeight: '1.6rem' }}>
-                                    {msg.deleteType == null ? msg.message : (
-                                        <div className="delete-msg-text">
-                                            <i className="bi bi-ban mx-2 delete-message-icon"></i>
-                                            You deleted this message.
+                            {prevMsg.messages.map((msg, index) => (
+                                <div key={msg.msgId}>
+                                    {msg.fromUserId === localStorage.getItem('userId') ? (
+                                        <div className="text-end m-3">
+                                            <div className="px-3 right-message"
+                                                onMouseOver={() => {
+                                                    if (!msg.deleteType) {
+                                                        setDeleteMsg({...msg,date:prevMsg._id});
+                                                        setDeleteId(msg.msgId);
+                                                    }
+                                                }}
+                                                onMouseOut={() => setDeleteId('')}>
+                                                <div className="d-flex flex-row justify-content-between mt-2" style={{ fontWeight: '400', color: 'pink' }}>
+                                                    <div style={{ color: 'pink' }}> {newUser.userName} </div>
+                                                    <div data-bs-toggle="modal" data-bs-target="#deleteMessage" className={`${deleteId === msg.msgId ? 'd-block' : 'd-none'}`}>
+                                                        <i className="bi bi-trash3 delete-btn"></i>
+                                                    </div>
+                                                </div>
+                                                {msg.message.includes('data:image') && !msg.deleteType ? (
+                                                    <img src={msg.message} alt="image" style={{ width: '20rem', height: '20rem' }} />
+                                                ) : (
+                                                    <div className="text-start" style={{ lineHeight: '1.6rem' }}>
+                                                        {msg.deleteType == null ? msg.message : (
+                                                            <div className="delete-msg-text">
+                                                                <i className="bi bi-ban me-2 delete-message-icon"></i>
+                                                                You deleted this message.
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                <div className="text-end pb-1 msg-time">{msg.time}</div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-start m-3">
+                                            <div className="px-3 left-message">
+                                                <div className="text-start mt-1" style={{ fontWeight: '400', color: 'pink' }}>
+                                                    {chatUser.userName}
+                                                </div>
+                                                {msg.message.includes('data:image') && !msg.deleteType ? (
+                                                    <img src={msg.message} alt="image" style={{ width: '20rem', height: '20rem' }} />
+                                                ) : (
+                                                    <div className="text-start" style={{ lineHeight: '1.6rem' }}>
+                                                        {!msg.message.includes('data:image') && (msg.deleteType == null || msg.deleteType === 'me') ? msg.message : (
+                                                            <div className="delete-msg-text">
+                                                                <i className="bi bi-ban me-2 delete-message-icon"></i>
+                                                                This message was deleted.
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                <div className="text-end pb-1 msg-time">{msg.time}</div>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
-                            )}
-                            <div className="text-end pb-1 msg-time">{msg.time}</div>
+                            ))}
                         </div>
-                    </div>
-                ) : (
-                    <div className="text-start m-3">
-                        <div className="px-3 left-message">
-                            <div className="text-start mt-1" style={{ fontWeight: '400', color: 'pink' }}>
-                                {chatUser.userName}
-                            </div>
-                            {msg.message.includes('data:image') && !msg.deleteType ? (
-                                <img src={msg.message} alt="image" style={{ width: '20rem', height: '20rem' }} />
-                            ) : (
-                                <div className="text-start" style={{ lineHeight: '1.6rem' }}>
-                                    {!msg.message.includes('data:image') && (msg.deleteType == null || msg.deleteType === 'me') ? msg.message : (
-                                        <div className="delete-msg-text">
-                                            <i className="bi bi-ban mx-2 delete-message-icon"></i>
-                                            This message was deleted.
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                            <div className="text-end pb-1 msg-time">{msg.time}</div>
-                        </div>
-                    </div>
-                )}
-            </div>
-        ))}
-    </React.Fragment>
-))}
+                    ))}
 
                     <div ref={chatEndRef} />
                 </div>

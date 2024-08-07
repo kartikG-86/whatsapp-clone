@@ -96,9 +96,14 @@ const GroupChatDisplay = () => {
         <>
 
             {groupMembers != {} ? <>
-                <div className="col user-info p-3" data-bs-toggle="modal" data-bs-target="#displayMemberModal">
+                <div className="col user-info p-3 d-flex flex-row" data-bs-toggle="modal" data-bs-target="#displayMemberModal">
                     <img src={groupMembers.imgUrl != '' ? groupMembers.imgUrl : 'https://png.pngtree.com/element_our/png/20180904/group-avatar-icon-design-vector-png_75950.jpg'} data-bs-toggle="modal" data-bs-target="#showDp" />
+                    <div className="d-flex flex-column">
                     <span className="px-3" style={{ fontWeight: '500' }}>{groupMembers.userName}</span>
+                       <span className="mx-3 mt-1">{groupMembers != {} && groupMembers.members && groupMembers.members.map((member,index) => <span style={{color:'grey'}}>{member.userName == currentUser.userName ? 'You': member.userName} {index == groupMembers.members.length - 1 ? '' : ', '}</span> )}</span> 
+                    </div>
+                  
+                    
                 </div>
 
                 <div className="col user-chat-area">

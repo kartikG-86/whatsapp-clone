@@ -49,7 +49,7 @@ const WhatsApp = () => {
     return (
         <div className='chat-container'>
             <div className='px-3 py-2'>
-                <i className="bi bi-whatsapp"></i>
+                <i className="bi bi-whatsapp" style={{color:'#25d868'}}></i>
                 <span className='mx-3 title'>Whatsapp</span>
             </div>
 

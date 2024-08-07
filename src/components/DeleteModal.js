@@ -23,13 +23,23 @@ const DeleteModal = ({ deleteMsg }) => {
 
     const onDelete = () => {
         console.log('hi', deleteMsg)
-        setMessage(prevMessage =>
-            prevMessage.map(msg =>
-                msg.msgId === deleteMsg.msgId
-                    ? { ...msg, deleteType: selectedOption }
-                    : msg
-            )
-        );
+        console.log(message)
+        setMessage(prevMessageData => {
+            return prevMessageData.map(prevMessages => {
+                if (prevMessages._id === deleteMsg.date) {
+                    return {
+                        ...prevMessages,
+                        messages: prevMessages.messages.map(msg =>
+                            msg.msgId === deleteMsg.msgId
+                                ? { ...msg, deleteType: selectedOption }
+                                : msg
+                        )
+                    };
+                }
+                return prevMessages;
+            });
+        });
+        
         deleteMsg.deleteType = selectedOption
         setIsDelete(false);
         setSelectedOption('');
