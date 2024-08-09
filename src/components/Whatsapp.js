@@ -1,6 +1,6 @@
 
 // WhatsApp.js
-import React, { useEffect, useState , useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "./Sidebar";
@@ -13,7 +13,10 @@ const WhatsApp = () => {
     const socket = useSocket(); // Get socket from context
     const { chatUser, setChatUser, user, setUser, sideBarList, setSideBarList, message, setMessage } = useContext(AppContext);
     const currentUserId = localStorage.getItem('userId')
+    const [currentUrl , setCurrentUrl] = useState('')
     useEffect(() => {
+        // console.log(window.location.href)
+        setCurrentUrl(window.location.href)
         if (!currentUserId) {
             console.error('No user ID found in local storage.');
             return;
@@ -49,7 +52,7 @@ const WhatsApp = () => {
     return (
         <div className='chat-container'>
             <div className='px-3 py-2'>
-                <i className="bi bi-whatsapp" style={{color:'#25d868'}}></i>
+                <i className="bi bi-whatsapp" style={{ color: '#25d868' }}></i>
                 <span className='mx-3 title'>Whatsapp</span>
             </div>
 

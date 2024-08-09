@@ -6,7 +6,7 @@ import '../App.css';
 import DisplayImageModal from "./DisplayImageModal";
 import axios from "axios";
 import { AppContext } from "../AppContext";
-import DisplayMemberModal from "./DisplayMemberModal";
+import InformationModal from "./InformationModal";
 const GroupChatDisplay = () => {
     const { setSideBarList, groupMessage, socket, groupMembers, setGroupMembers } = useContext(AppContext);
     const { id } = useParams();
@@ -92,6 +92,26 @@ const GroupChatDisplay = () => {
         chatEndRef.current?.scrollIntoView();
     }, [groupMessage]);
 
+    const groupSidebar = [{
+        name: "Overview",
+        icon: "bi-info-circle"
+    }, {
+        name: "Members",
+        icon: 'bi-people'
+    }, {
+        name: "Media",
+        icon: 'bi-music-note-list'
+    }, {
+        name: "Files",
+        icon: 'bi-file-earmark'
+    }, {
+        name: "Links",
+        icon: 'bi-link'
+    }, {
+        name: "Encryption",
+        icon: 'bi-shield-lock'
+    },]
+
     return (
         <>
 
@@ -135,7 +155,11 @@ const GroupChatDisplay = () => {
                                             </div>
                                         </div> : <div className="text-start m-3">
                                             <div className="px-3 left-message">
-                                                <div className="text-start mt-1" style={{ fontWeight: '400', color: 'pink' }}>{msg.senderDetails.userName}</div>
+                                                <div className="text-start mt-1" style={{ fontWeight: '400', color: 'pink' }}>
+                                                    <a style={{textDecoration:'none' ,color:'pink'}} href={`/chat/${msg.senderDetails._id}`}>
+                                                        {msg.senderDetails.userName}
+                                                    </a>
+                                                </div>
                                                 <div style={{ lineHeight: '1.6rem' }}>{msg.message}</div>
                                                 <div className="text-end pb-1" style={{ color: 'grey', fontWeight: '500', fontSize: '0.75rem' }}>{msg.time}</div>
                                             </div>
@@ -173,7 +197,7 @@ const GroupChatDisplay = () => {
                     <DisplayImageModal user={groupMembers} comp='chat display' />
                 </div>
                 <div className="modal fade" id="displayMemberModal" tabIndex="-1" aria-labelledby="displayMemberModalLabel" aria-hidden="true">
-                    <DisplayMemberModal groupMembers={groupMembers} setGroupMembers={setGroupMembers} setSideBarList={setSideBarList} />
+                    <InformationModal type="group" groupMembers={groupMembers} setGroupMembers={setGroupMembers} setSideBarList={setSideBarList} infoSidebar={groupSidebar} />
                 </div>
 
             </> : <></>}

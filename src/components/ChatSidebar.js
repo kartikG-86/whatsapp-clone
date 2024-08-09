@@ -99,7 +99,7 @@ const ChatSidebar = () => {
                             <div className='d-flex flex-column mx-3'>
                                 <div className='userName'>{user.user.userName ? user.user.userName : ''}</div>
 
-                                {/* <div className='userMessage'>{user.latestMessage ? user.latestMessage : ''}</div> */}
+                                <div className='userMessage' style={{fontSize:'1rem',fontWeight:'600'}}>{user.latestMessage ? user.latestMessage : ''}</div>
                             </div>
                         </div>
                         <div className='lastTime'>

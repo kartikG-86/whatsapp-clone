@@ -10,6 +10,7 @@ import { AppContext } from "../AppContext";
 import EmojiModal from "./DeleteModal";
 import EmojiPicker from "emoji-picker-react";
 import DeleteModal from "./DeleteModal";
+import InformationModal from "./InformationModal";
 const SOCKET_SERVER_URL = 'http://localhost:8000'; // Replace with your server URL
 const socket = io(SOCKET_SERVER_URL, { autoConnect: false });
 
@@ -159,10 +160,30 @@ const ChatDisplay = () => {
         }
     }
 
+    const groupSidebar = [{
+        name: "Overview",
+        icon: "bi-info-circle"
+    }, {
+        name: "Media",
+        icon: 'bi-music-note-list'
+    }, {
+        name: "Files",
+        icon: 'bi-file-earmark'
+    }, {
+        name: "Links",
+        icon: 'bi-link'
+    }, {
+        name: "Encryption",
+        icon: 'bi-shield-lock'
+    },{
+        name: "Groups",
+        icon: 'bi-people'
+    }]
+
 
     return (
         <>
-            <div className="col user-info p-3">
+            <div className="col user-info p-3" data-bs-toggle="modal" data-bs-target="#oneToOneInformationModal">
                 <img src={chatUser.imgUrl} data-bs-toggle="modal" data-bs-target="#showDp" />
                 <span className="px-3" style={{ fontWeight: '500' }}>{chatUser.userName}</span>
             </div>
@@ -290,6 +311,9 @@ const ChatDisplay = () => {
             <div className="modal fade" id="deleteMessage" tabIndex="-1" aria-labelledby="deleteMessageModalLabel" aria-hidden="true">
                 <DeleteModal deleteMsg={deleteMsg} />
             </div>
+            <div className="modal fade" id="oneToOneInformationModal" tabIndex="-1" aria-labelledby="oneToOneInformationModalLabel" aria-hidden="true">
+                    <InformationModal type="single" infoSidebar={groupSidebar} chatUser={chatUser}  />
+                </div>
         </>
     );
 }

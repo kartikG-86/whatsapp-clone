@@ -84,7 +84,9 @@ const ChatSection = () => {
     const socket = useSocket(); // Get socket from context
     const { chatUser, setChatUser, user, setUser, sideBarList, setSideBarList, message, setMessage } = useContext(AppContext);;
     const currentUserId = localStorage.getItem('userId')
+    
     useEffect(() => {
+        console.log(window.location.href)
         if (id) {
             axios.get(`http://localhost:8000/api/connection/getUser/${id}`)
                 .then((res) => {
@@ -105,7 +107,7 @@ const ChatSection = () => {
     return (
         <div className='chat-container'>
             <div className='px-3 py-2'>
-                <i className="bi bi-whatsapp" style={{color:'#25d868'}}></i>
+                <i className="bi bi-whatsapp" style={{ color: '#25d868' }}></i>
                 <span className='mx-3 title'>Whatsapp</span>
             </div>
 

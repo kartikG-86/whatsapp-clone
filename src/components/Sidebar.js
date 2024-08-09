@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import '../App.css';
 import Avatar from 'react-avatar';
 import DisplayImageModal from "./DisplayImageModal";
+import Profile from "./Profile";
 
 const Sidebar = () => {
     const user = JSON.parse(localStorage.getItem('user'))
@@ -24,10 +25,10 @@ const Sidebar = () => {
                 <i class="bi bi-archive icon mb-3"></i>
                 <hr />
                 <i class="bi bi-gear mt-3 mb-3 icon"></i>
-                <img onClick={showDp} src={user.imgUrl} alt={user.name} style={{marginLeft:'-0.5rem'}} data-bs-toggle="modal" data-bs-target="#displayImageModal" />
+                <img onClick={showDp} src={user.imgUrl} alt={user.name} style={{marginLeft:'-0.5rem'}} data-bs-toggle="modal" data-bs-target="#showProfileModal" />
             </div>
-            <div class="modal fade" id="displayImageModal" tabindex="-1" aria-labelledby="displayImageModalLabel" aria-hidden="true">
-                <DisplayImageModal user={selectUser} comp='sidebar' />
+            <div class="modal fade" id="showProfileModal" tabindex="-1" aria-labelledby="showProfileModalLabel" aria-hidden="true">
+                <Profile user={selectUser} />
             </div>
         </div>
     </>
